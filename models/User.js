@@ -53,6 +53,9 @@ userSchema.pre("save", function (next) {
 				next();
 			});
 		});
+	} else {
+		// 수정하지 않는 경우에는 바로 index.js의 코드를 실행한다.
+		next();
 	}
 });
 
