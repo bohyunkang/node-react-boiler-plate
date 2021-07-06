@@ -7,6 +7,9 @@ const port = 5000;
 // body-parser: Body 데이터를 분석(parse)해서 req.body로 출력해주는 패키지
 const bodyParser = require("body-parser");
 
+// 환경변수 분기처리 해놓은 파일을 가져온다.
+const config = require("./config/key");
+
 // 만들어놓은 User 모델을 가져온다.
 const { User } = require("./models/User");
 
@@ -19,15 +22,12 @@ app.use(bodyParser.json());
 // mongoose: 몽고DB를 편하게 쓸 수 있는 Object Modeling Tool
 const mongoose = require("mongoose");
 mongoose
-	.connect(
-		"mongodb+srv://bohyunkang:abcd1234@boilerplate.vtb4c.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
-		{
-			useNewUrlParser: true,
-			useUnifiedTopology: true,
-			useCreateIndex: true,
-			useFindAndModify: false,
-		}
-	)
+	.connect(config.mongoURI, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+		useCreateIndex: true,
+		useFindAndModify: false,
+	})
 	.then(() => console.log("몽고DB 연결 완료!"))
 	.catch((err) => console.log(err));
 
