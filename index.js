@@ -12,6 +12,9 @@ const cookieParser = require("cookie-parser");
 // 환경변수 분기처리 해놓은 파일을 가져온다.
 const config = require("./config/key");
 
+// 만들어놓은 auth 미들웨어를 가져온다.
+const { auth } = require("./middleware/auth");
+
 // 만들어놓은 User 모델을 가져온다.
 const { User } = require("./models/User");
 
@@ -40,7 +43,7 @@ app.get("/", (req, res) => {
 	res.send("Hello World! 안녕하세요!");
 });
 
-app.post("/register", (req, res) => {
+app.post("/api/users/register", (req, res) => {
 	// 회원 가입할 때 필요한 정보들을 client에서 가져와 데이터 베이스에 담는다.
 	const user = new User(req.body);
 	user.save((err, doc) => {
@@ -53,7 +56,7 @@ app.post("/register", (req, res) => {
 	});
 });
 
-app.post("/login", (req, res) => {
+app.post("/api/users/login", (req, res) => {
 	// 1. 요청된 이메일을 데이터베이스에서 있는지 찾는다.
 	User.findOne({ email: req.body.email }, (err, user) => {
 		if (!user) {
@@ -82,6 +85,22 @@ app.post("/login", (req, res) => {
 				.status(200)
 				.json({ loginSuccess: true, userId: user._id });
 		});
+	});
+});
+
+// 두번째 인자로는 auth라는 미들웨어를 받아온다.
+// 미들웨어: 엔드포인트에서 리퀘스트를 받고, 콜백함수를 받기 전에 중간작업을 해준다.
+app.get("/api/users/auth", auth, (req, res) => {
+	// 아래 함수가 실행된다는 것은 미들웨어인 Authentication이 true라는 뜻
+	res.status(200).json({
+		_id: req.user._id,
+		isAdmin: req.user.role === 0 ? false : true,
+		isAuth: true,
+		email: req.user.email,
+		name: req.user.name,
+		lastname: req.user.lastname,
+		role: req.user.role,
+		image: req.user.image,
 	});
 });
 
